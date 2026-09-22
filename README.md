@@ -4,7 +4,7 @@
 
 A compact classical-AI search project for solving square sliding puzzles and comparing uninformed and heuristic search strategies.
 
-This repository is a refactored and extended fork of the original `8_puzzle` project by **Yazdan ZandiyeVakili (`yazdanzv`)**. The original Git history is preserved; the current implementation replaces the earlier scripts with a tested package, command-line interface, reproducible benchmarks, and explicit search metrics.
+This repository is a refactored and extended fork of the original [`yazdanzv/8_puzzle`](https://github.com/yazdanzv/8_puzzle) project. The original Git history is preserved; the current implementation replaces the earlier scripts with a tested package, command-line interface, reproducible benchmarks, and explicit search metrics.
 
 ## What it includes
 

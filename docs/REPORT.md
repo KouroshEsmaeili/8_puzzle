@@ -274,6 +274,6 @@ The heuristic set is intentionally small. Natural extensions include linear conf
 
 ## 11. Attribution and repository history
 
-The original Git history belongs to the upstream course-project authors and has not been rewritten. The latest upstream commit before this refactor is `fe9d310`, authored by **Yazdan ZandiyeVakili (`yazdanzv`)**. The refactor is layered on top of that history as new commits rather than replacing or reauthoring the original work.
+The original Git history belongs to the upstream course-project authors and has not been rewritten. This refactor starts from upstream commit `fe9d310`, authored by GitHub user [`yazdanzv`](https://github.com/yazdanzv). The refactor is layered on top of that history as new commits rather than replacing or reauthoring the original work.
 
 The upstream repository does not declare an explicit license, so this refactor does not add one independently.
