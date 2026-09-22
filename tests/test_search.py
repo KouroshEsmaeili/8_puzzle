@@ -4,14 +4,19 @@ import pytest
 
 from eight_puzzle import (
     Action,
+    Heuristic,
+    PuzzleState,
     SearchNode,
     SearchResult,
     SearchStatus,
     SlidingPuzzle,
+    a_star_search,
     breadth_first_search,
     depth_first_search,
     depth_limited_search,
     iterative_deepening_search,
+    manhattan_distance,
+    misplaced_tiles,
     uniform_cost_search,
 )
 
@@ -90,6 +95,7 @@ def dls_with_safe_limit(puzzle: SlidingPuzzle) -> SearchResult:
 
 
 ALL_SEARCHES: tuple[tuple[str, SearchCall], ...] = (
+    ("astar", a_star_search),
     ("bfs", breadth_first_search),
     ("dfs", depth_first_search),
     ("dls", dls_with_safe_limit),
@@ -292,3 +298,113 @@ def test_search_node_is_lightweight_and_does_not_store_children() -> None:
     assert root.depth == 0
     assert not hasattr(root, "children")
     assert not hasattr(root, "__dict__")
+
+
+@pytest.mark.parametrize("heuristic", [misplaced_tiles, manhattan_distance])
+def test_a_star_with_each_builtin_heuristic_solves_one_move_problem(
+    heuristic: Heuristic,
+) -> None:
+    puzzle = SlidingPuzzle(ONE_MOVE_START, ONE_MOVE_GOAL)
+
+    result = a_star_search(puzzle, heuristic)
+
+    assert_valid_solution(puzzle, result)
+    assert result.actions == (Action.UP,)
+    assert result.solution_depth == 1
+    assert result.cost == 1
+
+
+@pytest.mark.parametrize("heuristic", [misplaced_tiles, manhattan_distance])
+def test_a_star_with_each_builtin_heuristic_solves_two_move_problem(
+    heuristic: Heuristic,
+) -> None:
+    puzzle = SlidingPuzzle(TWO_MOVE_START, GOAL_3X3)
+
+    result = a_star_search(puzzle, heuristic)
+
+    assert_valid_solution(puzzle, result)
+    assert result.actions == (Action.RIGHT, Action.RIGHT)
+    assert result.solution_depth == 2
+    assert result.cost == 2
+
+
+@pytest.mark.parametrize(
+    "start",
+    [
+        GOAL_3X3,
+        (1, 2, 3, 4, 5, 6, 7, 0, 8),
+        TWO_MOVE_START,
+        (1, 2, 3, 4, 0, 6, 7, 5, 8),
+        (1, 2, 3, 5, 0, 6, 4, 7, 8),
+    ],
+)
+def test_a_star_builtin_heuristics_match_bfs_optimal_solution_depth(
+    start: tuple[int, ...],
+) -> None:
+    puzzle = SlidingPuzzle(start, GOAL_3X3)
+    bfs_result = breadth_first_search(puzzle)
+
+    for heuristic in (misplaced_tiles, manhattan_distance):
+        result = a_star_search(puzzle, heuristic)
+        assert_valid_solution(puzzle, result)
+        assert result.cost == bfs_result.cost
+        assert result.solution_depth == bfs_result.solution_depth
+
+
+@pytest.mark.parametrize("heuristic", [misplaced_tiles, manhattan_distance])
+def test_a_star_supports_nonstandard_goals(heuristic: Heuristic) -> None:
+    start = (1, 2, 3, 4, 5, 6, 0, 7, 8)
+    nonstandard_goal = (1, 2, 3, 4, 5, 6, 7, 0, 8)
+    puzzle = SlidingPuzzle(start, nonstandard_goal)
+
+    result = a_star_search(puzzle, heuristic)
+
+    assert_valid_solution(puzzle, result)
+    assert result.actions == (Action.RIGHT,)
+
+
+def test_a_star_rejects_negative_heuristic_values() -> None:
+    puzzle = SlidingPuzzle(TWO_MOVE_START, GOAL_3X3)
+
+    def negative_heuristic(_: SlidingPuzzle, __: PuzzleState) -> int:
+        return -1
+
+    with pytest.raises(ValueError, match="negative value"):
+        a_star_search(puzzle, negative_heuristic)
+
+
+def test_a_star_rejects_noninteger_heuristic_values() -> None:
+    puzzle = SlidingPuzzle(TWO_MOVE_START, GOAL_3X3)
+
+    def floating_heuristic(_: SlidingPuzzle, __: PuzzleState) -> int:
+        return 0.5  # type: ignore[return-value]
+
+    with pytest.raises(ValueError, match="must return an integer"):
+        a_star_search(puzzle, floating_heuristic)
+
+
+
+@pytest.mark.parametrize(
+    "puzzle",
+    [
+        SlidingPuzzle(GOAL_3X3, GOAL_3X3),
+        SlidingPuzzle(UNSOLVABLE_3X3, GOAL_3X3),
+    ],
+)
+def test_a_star_fast_paths_do_not_evaluate_the_heuristic(
+    puzzle: SlidingPuzzle,
+) -> None:
+    def unexpected_heuristic(_: SlidingPuzzle, __: PuzzleState) -> int:
+        raise AssertionError("heuristic should not be evaluated")
+
+    result = a_star_search(puzzle, unexpected_heuristic)
+
+    assert result.nodes_expanded == 0
+    if puzzle.start_state == puzzle.goal_state:
+        assert result.status is SearchStatus.SOLVED
+        assert result.nodes_generated == 1
+        assert result.max_frontier_size == 1
+    else:
+        assert result.status is SearchStatus.FAILURE
+        assert result.nodes_generated == 0
+        assert result.max_frontier_size == 0

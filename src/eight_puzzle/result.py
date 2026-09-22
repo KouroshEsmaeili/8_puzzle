@@ -22,9 +22,10 @@ class SearchResult:
     created, plus every successor candidate before duplicate or cycle checks.
     ``nodes_expanded`` counts only nodes whose successors are generated; a goal
     recognized before expansion is therefore not included. For BFS and DFS,
-    ``max_frontier_size`` is the greatest queue or stack size. For UCS it is
-    the number of logically active best-cost states, excluding stale heap
-    entries. For DLS and IDS it is the greatest active recursive path length.
+    ``max_frontier_size`` is the greatest queue or stack size. For UCS and A*
+    it is the number of logically active best-cost states, excluding stale
+    heap entries. For DLS and IDS it is the greatest active recursive path
+    length.
 
     Timing uses ``time.perf_counter`` and includes the solvability precheck but
     excludes any presentation of the returned result. A puzzle rejected by
