@@ -235,7 +235,7 @@ def test_bfs_ucs_and_ids_agree_on_optimal_cost_and_depth(
 
 @pytest.mark.parametrize(
     "depth_limit",
-    [-1],
+    [-1, True],
 )
 def test_dls_rejects_invalid_depth_limits(depth_limit: int) -> None:
     puzzle = SlidingPuzzle(TWO_MOVE_START, GOAL_3X3)
@@ -382,6 +382,18 @@ def test_a_star_rejects_noninteger_heuristic_values() -> None:
     with pytest.raises(ValueError, match="must return an integer"):
         a_star_search(puzzle, floating_heuristic)
 
+
+@pytest.mark.parametrize("invalid_value", [True, False, "0", None])
+def test_a_star_rejects_bool_and_unrelated_heuristic_values(
+    invalid_value: object,
+) -> None:
+    puzzle = SlidingPuzzle(TWO_MOVE_START, GOAL_3X3)
+
+    def invalid_heuristic(_: SlidingPuzzle, __: PuzzleState) -> int:
+        return invalid_value  # type: ignore[return-value]
+
+    with pytest.raises(ValueError, match="must return an integer"):
+        a_star_search(puzzle, invalid_heuristic)
 
 
 @pytest.mark.parametrize(

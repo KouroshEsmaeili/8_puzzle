@@ -5,6 +5,10 @@ from collections.abc import Callable
 from eight_puzzle.puzzle import PuzzleState, SlidingPuzzle
 
 Heuristic = Callable[[SlidingPuzzle, PuzzleState], int]
+_StateHeuristic = Callable[[PuzzleState], int]
+
+__all__ = ["Heuristic", "manhattan_distance", "misplaced_tiles"]
+
 
 def _misplaced_tiles(goal_state: PuzzleState, state: PuzzleState) -> int:
     return sum(
@@ -49,7 +53,7 @@ def manhattan_distance(puzzle: SlidingPuzzle, state: PuzzleState) -> int:
 
 def _build_heuristic_evaluator(
     puzzle: SlidingPuzzle, heuristic: Heuristic
-) -> Callable[[PuzzleState], int]:
+) -> _StateHeuristic:
     """Prepare an evaluator for valid states generated during one search."""
     if heuristic is misplaced_tiles:
         goal_state = puzzle.goal_state

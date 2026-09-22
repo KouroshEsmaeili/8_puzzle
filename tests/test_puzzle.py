@@ -39,6 +39,9 @@ def test_constructor_normalizes_states_to_tuples() -> None:
         ((0, 1, 2, 3, 4, 5, 6, 7, -1), "missing"),
         ((0, 1, 2, 3, 4, 5, 6, 7, 9), "missing"),
         ((0, 1, 2, 3, 4, 5, 6, 7, "8"), "integers"),
+        ((False, 1, 2, 3, 4, 5, 6, 7, 8), "integers"),
+        ((0, True, 2, 3, 4, 5, 6, 7, 8), "integers"),
+        ((0, 1.0, 2, 3, 4, 5, 6, 7, 8), "integers"),
     ],
 )
 def test_invalid_state_is_rejected(state: tuple[object, ...], message: str) -> None:
