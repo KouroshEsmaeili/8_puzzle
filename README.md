@@ -1,5 +1,7 @@
 # 8-Puzzle Search Algorithms
 
+[![CI](https://github.com/KouroshEsmaeili/8_puzzle/actions/workflows/ci.yml/badge.svg)](https://github.com/KouroshEsmaeili/8_puzzle/actions/workflows/ci.yml)
+
 A compact classical-AI search project for solving square sliding puzzles and comparing uninformed and heuristic search strategies.
 
 This repository is a refactored and extended fork of the original `8_puzzle` project by **Yazdan ZandiyeVakili (`yazdanzv`)**. The original Git history is preserved; the current implementation replaces the earlier scripts with a tested package, command-line interface, reproducible benchmarks, and explicit search metrics.
